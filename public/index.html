@@ -3,167 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monnify Ticket Wallet Platform</title>
+    <title>Monnify Wallet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #ffffff; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        h1, h2 { color: #4facfe; }
-        button { background: #4facfe; border: none; padding: 10px 20px; color: #121212; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        button:hover { background: #00f2fe; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: #fff; box-sizing: border-box;}
-        .card { background: #2a2a2a; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        pre { background: #111; padding: 10px; border-radius: 8px; overflow-x: auto; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #fff; min-height: 100vh; }
+        .app { max-width: 420px; margin: 0 auto; min-height: 100vh; background: #0a0a0f; position: relative; overflow-x: hidden; }
+
+        /* Header */
+        .header { padding: 20px 20px 0; display: flex; justify-content: space-between; align-items: center; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #1a6dff, #3b82f6); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+        .greeting { font-size: 18px; font-weight: 700; }
+        .header-right { display: flex; gap: 16px; }
+        .header-icon { width: 38px; height: 38px; border-radius: 50%; background: #1a1a2e; display: flex; align-items: center; justify-content: center; color: #7b8ab8; font-size: 16px; cursor: pointer; transition: background 0.2s; }
+        .header-icon:hover { background: #252545; }
+
+        /* Balance Card */
+        .balance-card { margin: 20px; border-radius: 20px; background: linear-gradient(135deg, #0d2137 0%, #1a3a5c 50%, #0d2137 100%); padding: 24px; position: relative; overflow: hidden; border: 1px solid rgba(59,130,246,0.15); }
+        .balance-card::before { content: ''; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%); }
+        .balance-tabs { display: flex; gap: 0; margin-bottom: 20px; background: #0a1628; border-radius: 12px; padding: 4px; }
+        .balance-tab { flex: 1; padding: 10px; text-align: center; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; color: #7b8ab8; }
+        .balance-tab.active { background: linear-gradient(135deg, #1a6dff, #3b82f6); color: #fff; box-shadow: 0 4px 15px rgba(26,109,255,0.3); }
+        .balance-label { font-size: 13px; color: #7b8ab8; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .balance-label i { font-size: 11px; cursor: pointer; }
+        .balance-amount { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
+        .balance-amount .currency { font-size: 20px; font-weight: 600; color: #7b8ab8; margin-right: 4px; }
+        .add-money-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: linear-gradient(135deg, #1a6dff, #3b82f6); border: none; border-radius: 25px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(26,109,255,0.3); }
+        .add-money-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(26,109,255,0.4); }
+
+        /* Quick Actions */
+        .actions { display: flex; justify-content: space-around; padding: 10px 20px 20px; }
+        .action-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+        .action-icon { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.3s; }
+        .action-icon.blue { background: rgba(26,109,255,0.15); color: #3b82f6; }
+        .action-icon.cyan { background: rgba(0,200,255,0.12); color: #00c8ff; }
+        .action-icon.purple { background: rgba(139,92,246,0.15); color: #8b5cf6; }
+        .action-icon.amber { background: rgba(245,158,11,0.15); color: #f59e0b; }
+        .action-item:hover .action-icon { transform: translateY(-3px); }
+        .action-label { font-size: 12px; color: #7b8ab8; font-weight: 500; }
+
+        /* Transaction Section */
+        .txn-section { padding: 0 20px; }
+        .txn-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .txn-header h3 { font-size: 16px; font-weight: 700; }
+        .see-all { font-size: 13px; color: #3b82f6; cursor: pointer; font-weight: 600; }
+        .txn-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 100px; }
+        .txn-item { display: flex; align-items: center; gap: 14px; padding: 14px; background: #111827; border-radius: 14px; transition: background 0.2s; }
+        .txn-item:hover { background: #1a2236; }
+        .txn-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .txn-icon.credit { background: rgba(34,197,94,0.12); color: #22c55e; }
+        .txn-icon.debit { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .txn-info { flex: 1; }
+        .txn-title { font-size: 14px; font-weight: 600; }
+        .txn-date { font-size: 12px; color: #7b8ab8; margin-top: 2px; }
+        .txn-amount { font-size: 14px; font-weight: 700; text-align: right; }
+        .txn-amount.credit { color: #22c55e; }
+        .txn-amount.debit { color: #ef4444; }
+        .txn-status { font-size: 11px; text-align: right; margin-top: 2px; font-weight: 500; }
+        .txn-status.success { color: #22c55e; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #7b8ab8; }
+        .empty-state i { font-size: 40px; margin-bottom: 12px; display: block; }
+
+        /* Modals */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: flex-end; justify-content: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { width: 100%; max-width: 420px; background: #111827; border-radius: 24px 24px 0 0; padding: 30px 24px 40px; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-handle { width: 40px; height: 4px; background: #374151; border-radius: 2px; margin: 0 auto 20px; }
+        .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+        .modal input { width: 100%; padding: 14px 16px; background: #1a2236; border: 1px solid #2a3550; border-radius: 12px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; margin-bottom: 12px; outline: none; transition: border 0.2s; }
+        .modal input:focus { border-color: #3b82f6; }
+        .modal input::placeholder { color: #4b5563; }
+        .modal-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #1a6dff, #3b82f6); border: none; border-radius: 12px; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; transition: all 0.3s; font-family: 'Inter', sans-serif; }
+        .modal-btn:hover { box-shadow: 0 6px 20px rgba(26,109,255,0.4); }
+        .modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #7b8ab8; font-size: 20px; cursor: pointer; }
+
+        /* Setup Screen */
+        .setup-screen { padding: 60px 24px; text-align: center; }
+        .setup-screen .logo { font-size: 48px; margin-bottom: 16px; }
+        .setup-screen h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, #3b82f6, #00c8ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .setup-screen p { color: #7b8ab8; font-size: 14px; margin-bottom: 32px; line-height: 1.5; }
+        .setup-screen input { width: 100%; padding: 14px 16px; background: #111827; border: 1px solid #2a3550; border-radius: 12px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; margin-bottom: 12px; outline: none; }
+        .setup-screen input:focus { border-color: #3b82f6; }
+        .setup-screen input::placeholder { color: #4b5563; }
+        .setup-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #1a6dff, #3b82f6); border: none; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; transition: all 0.3s; font-family: 'Inter', sans-serif; }
+        .setup-btn:hover { box-shadow: 0 6px 20px rgba(26,109,255,0.4); transform: translateY(-2px); }
+
+        /* Toast */
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 200; animation: fadeIn 0.3s; max-width: 380px; text-align: center; }
+        .toast.success { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+        .toast.error { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+        /* Spinner */
+        .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>🎟️ Ticket Wallet Platform</h1>
-    
-    <div class="card" id="setup-section">
-        <h2>1. Create Wallet</h2>
-        <p>Register to get a virtual bank account powered by Monnify.</p>
-        <input type="text" id="userId" placeholder="User ID (e.g., user123)">
+<div class="app">
+    <!-- SETUP SCREEN -->
+    <div id="setup-screen" class="setup-screen">
+        <div class="logo"><i class="fas fa-wallet" style="color:#3b82f6"></i></div>
+        <h1>Monnify Wallet</h1>
+        <p>Create your wallet to get a virtual bank account. Fund it, buy tickets, and withdraw to your bank.</p>
+        <input type="text" id="userId" placeholder="Choose a username">
         <input type="text" id="name" placeholder="Full Name">
         <input type="email" id="email" placeholder="Email Address">
-        <button onclick="createWallet()">Create Wallet</button>
+        <button class="setup-btn" onclick="createWallet()">Create Wallet</button>
     </div>
 
-    <div class="card" id="wallet-section" style="display:none;">
-        <h2>💰 Wallet Dashboard</h2>
-        <p><strong>Account Name:</strong> <span id="w-name"></span></p>
-        <p><strong>Account Number:</strong> <span id="w-account" style="color: #00f2fe; font-size: 1.2em;"></span></p>
-        <p><strong>Bank:</strong> <span id="w-bank"></span></p>
-        <p><strong>Balance:</strong> NGN <span id="w-balance" style="font-size: 1.5em; color: #4facfe;">0</span></p>
-        <button onclick="refreshBalance()">Refresh Balance</button>
-        <p><small><em>Transfer money from your main bank to the account number above. Then click refresh.</em></small></p>
+    <!-- MAIN WALLET SCREEN -->
+    <div id="wallet-screen" class="hidden">
+        <div class="header">
+            <div class="header-left">
+                <div class="avatar" id="avatarInitial">N</div>
+                <span class="greeting">Hi, <span id="userName">User</span></span>
+            </div>
+            <div class="header-right">
+                <div class="header-icon" onclick="refreshBalance()"><i class="fas fa-sync-alt"></i></div>
+                <div class="header-icon"><i class="fas fa-bell"></i></div>
+            </div>
+        </div>
+
+        <div class="balance-card">
+            <div class="balance-tabs">
+                <div class="balance-tab active">Available Balance</div>
+                <div class="balance-tab" onclick="showModal('historyModal')">Transaction History</div>
+            </div>
+            <div class="balance-label">Available Balance <i class="fas fa-eye" id="eyeToggle" onclick="toggleBalance()"></i></div>
+            <div class="balance-amount"><span class="currency">&#8358;</span><span id="balanceDisplay">0.00</span></div>
+            <button class="add-money-btn" onclick="showModal('depositModal')"><i class="fas fa-plus"></i> Add Money</button>
+        </div>
+
+        <div class="actions">
+            <div class="action-item" onclick="showModal('depositModal')">
+                <div class="action-icon blue"><i class="fas fa-plus"></i></div>
+                <span class="action-label">Add Money</span>
+            </div>
+            <div class="action-item" onclick="showModal('ticketModal')">
+                <div class="action-icon cyan"><i class="fas fa-ticket-alt"></i></div>
+                <span class="action-label">Buy Ticket</span>
+            </div>
+            <div class="action-item" onclick="showModal('withdrawModal')">
+                <div class="action-icon purple"><i class="fas fa-university"></i></div>
+                <span class="action-label">To Bank</span>
+            </div>
+            <div class="action-item" onclick="refreshBalance()">
+                <div class="action-icon amber"><i class="fas fa-sync-alt"></i></div>
+                <span class="action-label">Refresh</span>
+            </div>
+        </div>
+
+        <div class="txn-section">
+            <div class="txn-header">
+                <h3>Recent Activity</h3>
+                <span class="see-all">See All</span>
+            </div>
+            <div class="txn-list" id="txnList">
+                <div class="empty-state"><i class="fas fa-receipt"></i>No transactions yet</div>
+            </div>
+        </div>
     </div>
 
-    <div class="card" id="action-section" style="display:none;">
-        <h2>🎟️ Buy a Ticket</h2>
-        <p>VIP Concert Ticket - NGN 5,000</p>
-        <button onclick="buyTicket()">Buy Ticket</button>
-
-        <hr style="border-color: #444; margin: 20px 0;">
-
-        <h2>🏦 Withdraw to Bank</h2>
-        <input type="number" id="w-amount" placeholder="Amount to withdraw">
-        <input type="text" id="w-bankCode" placeholder="Destination Bank Code (e.g. 035 for Wema)">
-        <input type="text" id="w-destAccount" placeholder="Destination Account Number">
-        <button onclick="withdraw()">Withdraw Funds</button>
+    <!-- DEPOSIT MODAL -->
+    <div class="modal-overlay" id="depositModal">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <h3>Add Money</h3>
+            <p style="color:#7b8ab8;font-size:13px;margin-bottom:16px;">Transfer to your virtual account or simulate a deposit below.</p>
+            <div style="background:#1a2236;padding:14px;border-radius:12px;margin-bottom:16px;">
+                <div style="font-size:12px;color:#7b8ab8;">Account Number</div>
+                <div style="font-size:20px;font-weight:700;margin:4px 0;" id="modalAccNum">—</div>
+                <div style="font-size:12px;color:#7b8ab8;" id="modalBankName">—</div>
+            </div>
+            <input type="number" id="depositAmount" placeholder="Enter amount to simulate">
+            <button class="modal-btn" onclick="mockDeposit()">Simulate Deposit</button>
+            <button class="modal-btn" style="background:#1a2236;margin-top:8px;" onclick="hideModal('depositModal')">Cancel</button>
+        </div>
     </div>
 
-    <div id="logs">
-        <h2>Logs</h2>
-        <pre id="logOutput">System initialized...</pre>
+    <!-- TICKET MODAL -->
+    <div class="modal-overlay" id="ticketModal">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <h3>Buy a Ticket</h3>
+            <div style="background:#1a2236;padding:16px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
+                <div style="width:48px;height:48px;border-radius:12px;background:rgba(0,200,255,0.12);display:flex;align-items:center;justify-content:center;font-size:22px;color:#00c8ff;"><i class="fas fa-ticket-alt"></i></div>
+                <div>
+                    <div style="font-weight:700;">VIP Concert Ticket</div>
+                    <div style="color:#7b8ab8;font-size:13px;">&#8358;5,000.00</div>
+                </div>
+            </div>
+            <button class="modal-btn" onclick="buyTicket()">Purchase — &#8358;5,000</button>
+            <button class="modal-btn" style="background:#1a2236;margin-top:8px;" onclick="hideModal('ticketModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- WITHDRAW MODAL -->
+    <div class="modal-overlay" id="withdrawModal">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <h3>Withdraw to Bank</h3>
+            <input type="number" id="wdAmount" placeholder="Amount">
+            <input type="text" id="wdBankCode" placeholder="Bank Code (e.g. 035 for Wema)">
+            <input type="text" id="wdAccount" placeholder="Account Number">
+            <button class="modal-btn" onclick="withdraw()">Withdraw</button>
+            <button class="modal-btn" style="background:#1a2236;margin-top:8px;" onclick="hideModal('withdrawModal')">Cancel</button>
+        </div>
     </div>
 </div>
 
 <script>
-    let currentUserId = null;
+let currentUserId = null;
+let balanceHidden = false;
+let currentBalance = 0;
+const transactions = [];
+const H = { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' };
 
-    function log(msg) {
-        document.getElementById('logOutput').innerText = msg + '\n' + document.getElementById('logOutput').innerText;
-    }
+function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
 
-    async function createWallet() {
-        const userId = document.getElementById('userId').value;
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function hideModal(id) { document.getElementById(id).classList.remove('show'); }
 
-        if (!userId || !name || !email) return alert('Please fill all fields');
-        log('Creating wallet for ' + userId + '...');
+function toggleBalance() {
+    balanceHidden = !balanceHidden;
+    document.getElementById('balanceDisplay').textContent = balanceHidden ? '****' : formatMoney(currentBalance);
+    document.getElementById('eyeToggle').className = balanceHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+}
 
-        try {
-            const res = await fetch('/api/wallet/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, name, email })
-            });
-            const data = await res.json();
-            
-            if (res.ok) {
-                log('Wallet created: ' + JSON.stringify(data.wallet));
-                currentUserId = userId;
-                document.getElementById('setup-section').style.display = 'none';
-                document.getElementById('wallet-section').style.display = 'block';
-                document.getElementById('action-section').style.display = 'block';
-                
-                document.getElementById('w-name').innerText = data.wallet.name;
-                document.getElementById('w-account').innerText = data.wallet.accountNumber;
-                document.getElementById('w-bank').innerText = data.wallet.bankName;
-                document.getElementById('w-balance').innerText = data.wallet.balance;
-            } else {
-                log('Error: ' + JSON.stringify(data));
-            }
-        } catch (e) {
-            log('Error: ' + e.message);
+function formatMoney(n) { return Number(n).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+function addTxn(title, amount, type) {
+    transactions.unshift({ title, amount, type, date: new Date() });
+    renderTxns();
+}
+
+function renderTxns() {
+    const el = document.getElementById('txnList');
+    if (!transactions.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i>No transactions yet</div>'; return; }
+    el.innerHTML = transactions.slice(0, 10).map(t => `
+        <div class="txn-item">
+            <div class="txn-icon ${t.type}"><i class="fas fa-${t.type === 'credit' ? 'arrow-down' : 'arrow-up'}"></i></div>
+            <div class="txn-info">
+                <div class="txn-title">${t.title}</div>
+                <div class="txn-date">${t.date.toLocaleString()}</div>
+            </div>
+            <div>
+                <div class="txn-amount ${t.type}">${t.type === 'credit' ? '+' : '-'}&#8358;${formatMoney(t.amount)}</div>
+                <div class="txn-status success">Successful</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+let pollInterval;
+
+function startPolling() {
+    if (pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(() => {
+        refreshBalance(true); // silent refresh in the background
+    }, 4000); // Check every 4 seconds
+}
+
+function updateBalance(bal) {
+    currentBalance = bal;
+    if (!balanceHidden) document.getElementById('balanceDisplay').textContent = formatMoney(bal);
+}
+
+async function createWallet() {
+    const userId = document.getElementById('userId').value.trim();
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    if (!userId || !name || !email) return showToast('Please fill all fields', 'error');
+    try {
+        const res = await fetch('/api/wallet/create', { method: 'POST', headers: H, body: JSON.stringify({ userId, name, email }) });
+        const data = await res.json();
+        if (res.ok) {
+            currentUserId = userId;
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('wallet-screen').classList.remove('hidden');
+            document.getElementById('userName').textContent = name.split(' ')[0];
+            document.getElementById('avatarInitial').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('modalAccNum').textContent = data.wallet.accountNumber;
+            document.getElementById('modalBankName').textContent = data.wallet.bankName;
+            updateBalance(data.wallet.balance);
+            showToast('Wallet created!');
+            startPolling(); // Start auto-refreshing balance
+        } else {
+            showToast(data.error || 'Failed', 'error');
         }
-    }
+    } catch (e) { showToast(e.message, 'error'); }
+}
 
-    async function refreshBalance() {
-        if (!currentUserId) return;
-        log('Fetching balance...');
-        try {
-            const res = await fetch(`/api/wallet/${currentUserId}`);
-            const data = await res.json();
-            if (res.ok) {
-                document.getElementById('w-balance').innerText = data.balance;
-                log('Balance updated: NGN ' + data.balance);
-            } else {
-                log('Error: ' + JSON.stringify(data));
+async function refreshBalance(silent = false) {
+    if (!currentUserId) return;
+    try {
+        const res = await fetch(`/api/wallet/${currentUserId}`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
+        const data = await res.json();
+        if (res.ok) {
+            const oldBal = currentBalance;
+            updateBalance(data.balance);
+            if (data.balance > oldBal) {
+                addTxn('Deposit Received', data.balance - oldBal, 'credit');
+                showToast(`+₦${formatMoney(data.balance - oldBal)} received!`);
+            } else if (!silent) {
+                showToast('Balance is up to date');
             }
-        } catch (e) {
-            log('Error: ' + e.message);
         }
+    } catch (e) { 
+        if (!silent) showToast(e.message, 'error'); 
     }
+}
 
-    async function buyTicket() {
-        log('Attempting to buy ticket...');
-        try {
-            const res = await fetch('/api/tickets/buy', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: currentUserId, ticketPrice: 5000, ticketName: 'VIP Concert Ticket' })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                log('Success: ' + data.message);
-                document.getElementById('w-balance').innerText = data.remainingBalance;
-            } else {
-                log('Failed: ' + JSON.stringify(data));
-            }
-        } catch (e) {
-            log('Error: ' + e.message);
-        }
-    }
+async function mockDeposit() {
+    const amount = document.getElementById('depositAmount').value;
+    if (!amount) return showToast('Enter an amount', 'error');
+    try {
+        const res = await fetch('/api/wallet/mock-deposit', { method: 'POST', headers: H, body: JSON.stringify({ userId: currentUserId, amount: Number(amount) }) });
+        const data = await res.json();
+        if (res.ok) {
+            updateBalance(data.balance);
+            addTxn('Deposit (Simulated)', Number(amount), 'credit');
+            hideModal('depositModal');
+            document.getElementById('depositAmount').value = '';
+            showToast(`+₦${formatMoney(amount)} deposited!`);
+        } else { showToast(data.error, 'error'); }
+    } catch (e) { showToast(e.message, 'error'); }
+}
 
-    async function withdraw() {
-        const amount = document.getElementById('w-amount').value;
-        const bankCode = document.getElementById('w-bankCode').value;
-        const accountNumber = document.getElementById('w-destAccount').value;
+async function buyTicket() {
+    try {
+        const res = await fetch('/api/tickets/buy', { method: 'POST', headers: H, body: JSON.stringify({ userId: currentUserId, ticketPrice: 5000, ticketName: 'VIP Concert Ticket' }) });
+        const data = await res.json();
+        if (res.ok) {
+            updateBalance(data.remainingBalance);
+            addTxn('VIP Concert Ticket', 5000, 'debit');
+            hideModal('ticketModal');
+            showToast('Ticket purchased!');
+        } else { showToast(data.error, 'error'); }
+    } catch (e) { showToast(e.message, 'error'); }
+}
 
-        if (!amount || !bankCode || !accountNumber) return alert('Fill all withdrawal fields');
-        log('Initiating withdrawal...');
-
-        try {
-            const res = await fetch('/api/wallet/withdraw', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: currentUserId, amount: Number(amount), bankCode, accountNumber })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                log('Withdrawal success: ' + data.message);
-                document.getElementById('w-balance').innerText = data.remainingBalance;
-            } else {
-                log('Withdrawal failed: ' + JSON.stringify(data));
-            }
-        } catch (e) {
-            log('Error: ' + e.message);
-        }
-    }
+async function withdraw() {
+    const amount = document.getElementById('wdAmount').value;
+    const bankCode = document.getElementById('wdBankCode').value;
+    const accountNumber = document.getElementById('wdAccount').value;
+    if (!amount || !bankCode || !accountNumber) return showToast('Fill all fields', 'error');
+    try {
+        const res = await fetch('/api/wallet/withdraw', { method: 'POST', headers: H, body: JSON.stringify({ userId: currentUserId, amount: Number(amount), bankCode, accountNumber }) });
+        const data = await res.json();
+        if (res.ok) {
+            updateBalance(data.remainingBalance);
+            addTxn('Bank Withdrawal', Number(amount), 'debit');
+            hideModal('withdrawModal');
+            showToast('Withdrawal initiated!');
+        } else { showToast(data.error, 'error'); }
+    } catch (e) { showToast(e.message, 'error'); }
+}
 </script>
-
 </body>
 </html>
