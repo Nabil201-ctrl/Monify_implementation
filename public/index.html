@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monnify Ticket Wallet Platform</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #ffffff; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        h1, h2 { color: #4facfe; }
+        button { background: #4facfe; border: none; padding: 10px 20px; color: #121212; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #00f2fe; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: #fff; box-sizing: border-box;}
+        .card { background: #2a2a2a; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        pre { background: #111; padding: 10px; border-radius: 8px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎟️ Ticket Wallet Platform</h1>
+    
+    <div class="card" id="setup-section">
+        <h2>1. Create Wallet</h2>
+        <p>Register to get a virtual bank account powered by Monnify.</p>
+        <input type="text" id="userId" placeholder="User ID (e.g., user123)">
+        <input type="text" id="name" placeholder="Full Name">
+        <input type="email" id="email" placeholder="Email Address">
+        <button onclick="createWallet()">Create Wallet</button>
+    </div>
+
+    <div class="card" id="wallet-section" style="display:none;">
+        <h2>💰 Wallet Dashboard</h2>
+        <p><strong>Account Name:</strong> <span id="w-name"></span></p>
+        <p><strong>Account Number:</strong> <span id="w-account" style="color: #00f2fe; font-size: 1.2em;"></span></p>
+        <p><strong>Bank:</strong> <span id="w-bank"></span></p>
+        <p><strong>Balance:</strong> NGN <span id="w-balance" style="font-size: 1.5em; color: #4facfe;">0</span></p>
+        <button onclick="refreshBalance()">Refresh Balance</button>
+        <p><small><em>Transfer money from your main bank to the account number above. Then click refresh.</em></small></p>
+    </div>
+
+    <div class="card" id="action-section" style="display:none;">
+        <h2>🎟️ Buy a Ticket</h2>
+        <p>VIP Concert Ticket - NGN 5,000</p>
+        <button onclick="buyTicket()">Buy Ticket</button>
+
+        <hr style="border-color: #444; margin: 20px 0;">
+
+        <h2>🏦 Withdraw to Bank</h2>
+        <input type="number" id="w-amount" placeholder="Amount to withdraw">
+        <input type="text" id="w-bankCode" placeholder="Destination Bank Code (e.g. 035 for Wema)">
+        <input type="text" id="w-destAccount" placeholder="Destination Account Number">
+        <button onclick="withdraw()">Withdraw Funds</button>
+    </div>
+
+    <div id="logs">
+        <h2>Logs</h2>
+        <pre id="logOutput">System initialized...</pre>
+    </div>
+</div>
+
+<script>
+    let currentUserId = null;
+
+    function log(msg) {
+        document.getElementById('logOutput').innerText = msg + '\n' + document.getElementById('logOutput').innerText;
+    }
+
+    async function createWallet() {
+        const userId = document.getElementById('userId').value;
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+
+        if (!userId || !name || !email) return alert('Please fill all fields');
+        log('Creating wallet for ' + userId + '...');
+
+        try {
+            const res = await fetch('/api/wallet/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, name, email })
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+                log('Wallet created: ' + JSON.stringify(data.wallet));
+                currentUserId = userId;
+                document.getElementById('setup-section').style.display = 'none';
+                document.getElementById('wallet-section').style.display = 'block';
+                document.getElementById('action-section').style.display = 'block';
+                
+                document.getElementById('w-name').innerText = data.wallet.name;
+                document.getElementById('w-account').innerText = data.wallet.accountNumber;
+                document.getElementById('w-bank').innerText = data.wallet.bankName;
+                document.getElementById('w-balance').innerText = data.wallet.balance;
+            } else {
+                log('Error: ' + JSON.stringify(data));
+            }
+        } catch (e) {
+            log('Error: ' + e.message);
+        }
+    }
+
+    async function refreshBalance() {
+        if (!currentUserId) return;
+        log('Fetching balance...');
+        try {
+            const res = await fetch(`/api/wallet/${currentUserId}`);
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('w-balance').innerText = data.balance;
+                log('Balance updated: NGN ' + data.balance);
+            } else {
+                log('Error: ' + JSON.stringify(data));
+            }
+        } catch (e) {
+            log('Error: ' + e.message);
+        }
+    }
+
+    async function buyTicket() {
+        log('Attempting to buy ticket...');
+        try {
+            const res = await fetch('/api/tickets/buy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUserId, ticketPrice: 5000, ticketName: 'VIP Concert Ticket' })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                log('Success: ' + data.message);
+                document.getElementById('w-balance').innerText = data.remainingBalance;
+            } else {
+                log('Failed: ' + JSON.stringify(data));
+            }
+        } catch (e) {
+            log('Error: ' + e.message);
+        }
+    }
+
+    async function withdraw() {
+        const amount = document.getElementById('w-amount').value;
+        const bankCode = document.getElementById('w-bankCode').value;
+        const accountNumber = document.getElementById('w-destAccount').value;
+
+        if (!amount || !bankCode || !accountNumber) return alert('Fill all withdrawal fields');
+        log('Initiating withdrawal...');
+
+        try {
+            const res = await fetch('/api/wallet/withdraw', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUserId, amount: Number(amount), bankCode, accountNumber })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                log('Withdrawal success: ' + data.message);
+                document.getElementById('w-balance').innerText = data.remainingBalance;
+            } else {
+                log('Withdrawal failed: ' + JSON.stringify(data));
+            }
+        } catch (e) {
+            log('Error: ' + e.message);
+        }
+    }
+</script>
+
+</body>
+</html>
