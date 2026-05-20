@@ -662,6 +662,19 @@
             </div>
         </div>
 
+        <!-- HISTORY MODAL -->
+        <div class="modal-overlay" id="historyModal">
+            <div class="modal" style="height: 80vh; overflow-y: auto;">
+                <div class="modal-handle"></div>
+                <h3>All Transactions</h3>
+                <div class="txn-list" id="fullTxnList">
+                    <div class="empty-state"><i class="fas fa-receipt"></i>No transactions yet</div>
+                </div>
+                <button class="modal-btn" style="background:#1a2236;margin-top:16px;"
+                    onclick="hideModal('historyModal')">Close</button>
+            </div>
+        </div>
+
         <!-- DEPOSIT MODAL -->
         <div class="modal-overlay" id="depositModal">
             <div class="modal">
@@ -750,8 +763,14 @@
 
         function renderTxns() {
             const el = document.getElementById('txnList');
-            if (!transactions.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i>No transactions yet</div>'; return; }
-            el.innerHTML = transactions.slice(0, 10).map(t => `
+            const fullEl = document.getElementById('fullTxnList');
+            if (!transactions.length) { 
+                const emptyHTML = '<div class="empty-state"><i class="fas fa-receipt"></i>No transactions yet</div>';
+                el.innerHTML = emptyHTML; 
+                if (fullEl) fullEl.innerHTML = emptyHTML;
+                return; 
+            }
+            const html = transactions.slice(0, 10).map(t => `
         <div class="txn-item">
             <div class="txn-icon ${t.type}"><i class="fas fa-${t.type === 'credit' ? 'arrow-down' : 'arrow-up'}"></i></div>
             <div class="txn-info">
@@ -764,6 +783,23 @@
             </div>
         </div>
     `).join('');
+            el.innerHTML = html;
+            
+            if (fullEl) {
+                fullEl.innerHTML = transactions.map(t => `
+        <div class="txn-item">
+            <div class="txn-icon ${t.type}"><i class="fas fa-${t.type === 'credit' ? 'arrow-down' : 'arrow-up'}"></i></div>
+            <div class="txn-info">
+                <div class="txn-title">${t.title}</div>
+                <div class="txn-date">${t.date.toLocaleString()}</div>
+            </div>
+            <div>
+                <div class="txn-amount ${t.type}">${t.type === 'credit' ? '+' : '-'}&#8358;${formatMoney(t.amount)}</div>
+                <div class="txn-status success">Successful</div>
+            </div>
+        </div>
+    `).join('');
+            }
         }
 
         let pollInterval;
