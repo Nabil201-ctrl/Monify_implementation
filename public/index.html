@@ -590,6 +590,115 @@
         .hidden {
             display: none !important;
         }
+
+        /* --- CAMPUS TRANSIT & SEAT SELECTION STYLE --- */
+        .seat {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #1a2236;
+            color: #7b8ab8;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #2a3550;
+            user-select: none;
+        }
+        
+        .seat:hover {
+            border-color: #3b82f6;
+            background: #25304a;
+            color: #fff;
+        }
+        
+        .seat.booked {
+            background: linear-gradient(135deg, #3a0d15 0%, #1c050a 100%);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.25);
+            cursor: not-allowed;
+        }
+        
+        .seat.booked:hover {
+            border-color: rgba(239, 68, 68, 0.25);
+            background: linear-gradient(135deg, #3a0d15 0%, #1c050a 100%);
+            color: #ef4444;
+        }
+        
+        .seat.selected {
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+            color: #fff;
+            border-color: #22c55e;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .seat.selected:hover {
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+            border-color: #22c55e;
+        }
+
+        /* Secure Pulse Ring Dialing Animation */
+        .pulse-ring {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.15);
+            animation: pulseRing 1.8s infinite ease-in-out;
+        }
+        
+        @keyframes pulseRing {
+            0% {
+                transform: scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2.2);
+                opacity: 0;
+            }
+        }
+
+        /* Ride history card layouts */
+        .ride-card {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .ride-card:hover {
+            background: #1a2236;
+            border-color: rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .ride-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .ride-badge.shuttle {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .ride-badge.keke {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
     </style>
 </head>
 
@@ -648,6 +757,53 @@
                 <div class="action-item" onclick="refreshBalance()">
                     <div class="action-icon amber"><i class="fas fa-sync-alt"></i></div>
                     <span class="action-label">Refresh</span>
+                </div>
+            </div>
+
+            <!-- CAMPUS TRANSIT & UNIFIED SEARCH -->
+            <div class="transit-section" style="padding: 0 20px 20px;">
+                <div style="background: linear-gradient(135deg, #131a2e 0%, #0b0e1b 100%); padding: 18px; border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.12); box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-route" style="color: #3b82f6; font-size: 16px;"></i>
+                            <span style="font-size: 14px; font-weight: 700; color: #fff;">Campus Transit</span>
+                        </div>
+                        <span style="background: rgba(34, 197, 94, 0.12); color: #22c55e; font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Supabase Live</span>
+                    </div>
+                    <p style="font-size: 12px; color: #7b8ab8; margin-bottom: 14px; line-height: 1.45;">Enter the vehicle's unique 4-digit code to start booking or pay instantly.</p>
+                    
+                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <input type="text" id="transitSearchCode" placeholder="Enter 4-Digit Code (e.g. 1001, 2002)" style="margin-bottom: 0; padding: 12px 14px; flex: 1; font-size: 13px; background:#070a13; border: 1px solid #1f293d;">
+                        <button onclick="searchVehicleCode()" style="width: auto; padding: 0 18px; margin-top: 0; display: flex; align-items: center; justify-content: center; height: 46px;" class="modal-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #506191; padding: 0 2px;">
+                        <span>Shuttle Code: <strong style="color:#3b82f6; cursor:pointer;" onclick="setSearchCode('1001')">1001</strong></span>
+                        <span>Keke Code: <strong style="color:#f59e0b; cursor:pointer;" onclick="setSearchCode('2002')">2002</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIVE INBOUND SHUTTLES (AUTOMATED REVERSE TRIPS) -->
+            <div id="inboundSection" class="hidden" style="padding: 0 20px 20px;">
+                <div class="txn-header" style="margin-bottom: 8px;">
+                    <h3 style="font-size: 14px; display: flex; align-items: center; gap: 6px; margin-bottom:0;"><i class="fas fa-bullhorn" style="color: #ef4444;"></i> Inbound Vehicles (Live)</h3>
+                </div>
+                <div id="inboundList" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- LAST RIDE HISTORY STACK -->
+            <div class="txn-section" style="margin-bottom: 20px; padding: 0 20px;">
+                <div class="txn-header" style="margin-bottom: 10px;">
+                    <h3 style="font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fas fa-history" style="color: #3b82f6;"></i> Last Rides</h3>
+                </div>
+                <div id="lastRidesList">
+                    <div class="empty-state" style="padding: 24px; font-size: 12px; border: 1px dashed rgba(255,255,255,0.05); border-radius:16px;">
+                        <i class="fas fa-car" style="font-size: 24px; margin-bottom: 8px; display:block; color:#4b5563;"></i>
+                        No campus rides logged yet
+                    </div>
                 </div>
             </div>
 
@@ -726,6 +882,145 @@
                 <button class="modal-btn" onclick="withdraw()">Withdraw</button>
                 <button class="modal-btn" style="background:#1a2236;margin-top:8px;"
                     onclick="hideModal('withdrawModal')">Cancel</button>
+            </div>
+        </div>
+
+        <!-- SHUTTLE SEAT SELECTOR MODAL -->
+        <div class="modal-overlay" id="seatSelectorModal">
+            <div class="modal" style="border-radius: 24px 24px 0 0; padding: 24px 20px 30px;">
+                <div class="modal-handle"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 id="seatModalTitle" style="margin-bottom:0; font-size:16px;">🚍 Shuttle Seat Selection</h3>
+                    <span id="seatModalPrice" style="background:rgba(59,130,246,0.15); color:#3b82f6; font-size:12px; font-weight:700; padding:4px 10px; border-radius:12px;">₦500.00</span>
+                </div>
+                
+                <div style="background:#1a2236; padding:12px; border-radius:14px; margin-bottom:20px; display:flex; align-items:center; gap:12px;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #1e3a8a, #3b82f6); display:flex; align-items:center; justify-content:center;"><i class="fas fa-user-tie"></i></div>
+                    <div>
+                        <div id="seatModalDriver" style="font-size:13px; font-weight:700; color:#fff;">Mustapha Yusuf</div>
+                        <div id="seatModalRoute" style="font-size:11px; color:#7b8ab8;">Main Campus ⇄ Annex Campus</div>
+                    </div>
+                </div>
+                
+                <!-- Cabin seat map grid -->
+                <div style="text-align:center; margin-bottom:14px; font-size:11px; color:#7b8ab8; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Front of Shuttle</div>
+                <div style="background:#0a0a0f; padding:20px; border-radius:18px; border:1px solid #1f2937; margin-bottom:20px; display:flex; flex-direction:column; gap:12px; max-width:280px; margin-left:auto; margin-right:auto;">
+                    <!-- Row 1: Steering Wheel (placeholder) + Passenger Front Seat -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 4px;">
+                        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:#4b5563; font-size:20px;"><i class="fas fa-dharmachakra"></i></div> <!-- Steer wheel -->
+                        <div style="width:44px; height:44px; border-radius:10px; background:#1f2937; display:flex; align-items:center; justify-content:center; color:#4b5563; font-size:10px; font-weight:700; border:1px dashed #374151;">Crew</div>
+                    </div>
+                    
+                    <!-- Aisle spacer line -->
+                    <div style="border-bottom:1px dashed #1f2937; margin:4px 0;"></div>
+                    
+                    <!-- Seats Grid -->
+                    <div id="seatsCabinGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; justify-items: center;">
+                        <!-- Rendered Dynamically -->
+                    </div>
+                </div>
+                
+                <!-- Legend -->
+                <div style="display:flex; justify-content:center; gap:16px; font-size:11px; color:#7b8ab8; margin-bottom:24px;">
+                    <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:3px; background:#1a2236; border: 1px solid #2a3550;"></div> Vacant</div>
+                    <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:3px; background:linear-gradient(135deg, #3a0d15, #1c050a); border: 1px solid rgba(239, 68, 68, 0.25);"></div> Taken</div>
+                    <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:3px; background:linear-gradient(135deg, #22c55e, #15803d);"></div> Mine</div>
+                </div>
+                
+                <button id="bookSeatBtn" class="modal-btn" disabled onclick="confirmShuttleSeatSelection()">Confirm & Proceed</button>
+                <button class="modal-btn" style="background:#1a2236; margin-top:8px;" onclick="hideModal('seatSelectorModal')">Cancel</button>
+            </div>
+        </div>
+
+        <!-- DRIVER PROFILE & PAYMENT MODAL -->
+        <div class="modal-overlay" id="driverPaymentModal">
+            <div class="modal" style="border-radius: 24px 24px 0 0; padding: 24px 20px 30px;">
+                <div class="modal-handle"></div>
+                <h3 id="paymentModalTitle" style="font-size:16px;">🛺 Driver Profile & Payment</h3>
+                
+                <!-- Driver Info Card -->
+                <div style="background:linear-gradient(135deg, #111827 0%, #1a2236 100%); padding:20px; border-radius:18px; border:1px solid rgba(59, 130, 246, 0.15); margin-bottom:20px; text-align:center;">
+                    <div id="driverPaymentAvatar" style="width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg, #f59e0b, #d97706); display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; color:#fff; margin:0 auto 12px; box-shadow:0 4px 15px rgba(245,158,11,0.2);">IB</div>
+                    <div id="driverPaymentName" style="font-size:16px; font-weight:700; color:#fff; margin-bottom:4px;">Ibrahim Bello</div>
+                    <div id="driverPaymentVehicle" style="font-size:12px; color:#7b8ab8; margin-bottom:8px;">TVS King Keke - Yellow (KDS-789-QA)</div>
+                    <div id="driverPaymentRoute" style="display:inline-block; font-size:11px; background:rgba(59,130,246,0.12); color:#3b82f6; padding:3px 10px; border-radius:10px; font-weight:600;">Gate 1 ⇄ Faculty of Engineering</div>
+                </div>
+                
+                <!-- Price / Seat Summary -->
+                <div id="priceOptionsContainer" class="hidden" style="margin-bottom:20px;">
+                    <div style="font-size:12px; color:#7b8ab8; margin-bottom:8px; font-weight:600;">Select Price Option:</div>
+                    <div style="display:flex; gap:10px; background: #0a0e1a; padding: 4px; border-radius: 12px;">
+                        <div class="balance-tab active" id="kekePrice200" onclick="selectKekePrice(200)" style="margin-bottom:0;">₦200</div>
+                        <div class="balance-tab" id="kekePrice300" onclick="selectKekePrice(300)" style="margin-bottom:0;">₦300</div>
+                        <div class="balance-tab" id="kekePrice500" onclick="selectKekePrice(500)" style="margin-bottom:0;">₦500</div>
+                    </div>
+                </div>
+                
+                <div id="seatSummaryContainer" class="hidden" style="background:#161d30; padding:12px 16px; border-radius:12px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:12px; color:#7b8ab8;">Selected Seat:</span>
+                    <span id="summarySeatBadge" style="font-size:12px; font-weight:700; background:#22c55e; color:#fff; padding:2px 8px; border-radius:6px; box-shadow:0 0 6px rgba(34,197,94,0.3);">Seat 4</span>
+                </div>
+
+                <!-- Virtual Account Information for Payment Validation -->
+                <div style="background:#0c101b; padding:16px; border-radius:14px; margin-bottom:24px; border:1px solid #1f2937;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-size:11px; color:#506191; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Monnify Virtual Account</span>
+                        <span style="font-size:11px; color:#22c55e; font-weight:700;"><i class="fas fa-check-circle"></i> Instant Validation</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div id="driverVirtualAccount" style="font-size:18px; font-weight:800; color:#fff; letter-spacing:0.5px;">8823490124</div>
+                            <div id="driverBankName" style="font-size:11px; color:#7b8ab8; margin-top:2px;">Wema Bank</div>
+                        </div>
+                        <button onclick="copyToClipboard(document.getElementById('driverVirtualAccount').textContent)" style="background:none; border:none; color:#3b82f6; font-size:16px; cursor:pointer; padding:6px;"><i class="far fa-copy"></i></button>
+                    </div>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <span style="font-size:13px; color:#7b8ab8;">Amount to Pay:</span>
+                    <span id="paymentModalPriceText" style="font-size:20px; font-weight:800; color:#fff;">₦300.00</span>
+                </div>
+                
+                <button id="payWithWalletBtn" class="modal-btn" onclick="executeTransitPayment()">Confirm & Pay with Wallet</button>
+                <button class="modal-btn" style="background:#1a2236; margin-top:8px;" onclick="hideModal('driverPaymentModal')">Cancel</button>
+            </div>
+        </div>
+
+        <!-- MASKED CALL MODAL (DIALING SCREEN) -->
+        <div class="modal-overlay" id="maskedCallModal" style="background:rgba(6, 8, 16, 0.96); z-index: 300;">
+            <div class="modal" style="height:100vh; max-width:420px; background:#060810; display:flex; flex-direction:column; justify-content:space-between; align-items:center; padding:50px 24px 60px; border-radius:0; animation:none;">
+                <div style="width:100%; text-align:center;">
+                    <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(34,197,94,0.12); color:#22c55e; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; margin-bottom:40px;">
+                        <i class="fas fa-shield-alt"></i> Private Masked Session
+                    </div>
+                    
+                    <div id="callerDriverAvatar" style="width:96px; height:96px; border-radius:50%; background:linear-gradient(135deg, #3b82f6, #00c8ff); display:flex; align-items:center; justify-content:center; font-size:36px; color:#fff; font-weight:800; margin:0 auto 16px; box-shadow:0 0 20px rgba(59,130,246,0.3);">MY</div>
+                    <h2 id="callerDriverName" style="font-size:20px; font-weight:800; color:#fff; margin-bottom:6px;">Mustapha Yusuf</h2>
+                    <div id="callerDriverVehicle" style="font-size:13px; color:#7b8ab8; margin-bottom:12px;">Toyota HiAce - White</div>
+                    
+                    <div style="display:flex; justify-content:center; align-items:center; gap:8px; background:#111524; padding:8px 16px; border-radius:12px; max-width:260px; margin:20px auto 0; border:1px solid #1f2937;">
+                        <i class="fas fa-lock" style="color:#22c55e; font-size:12px;"></i>
+                        <span style="font-size:11px; color:#7b8ab8; font-weight:600;">Proxy Call:</span>
+                        <span id="callerProxyPhone" style="font-size:12px; font-weight:700; color:#fff;">+234 700 748 8853</span>
+                    </div>
+                </div>
+                
+                <!-- Dialing animation graphic -->
+                <div style="display:flex; justify-content:center; align-items:center; height:140px; position:relative; width:100%;">
+                    <div class="pulse-ring"></div>
+                    <div class="pulse-ring" style="animation-delay: 0.6s;"></div>
+                    <div style="width:64px; height:64px; border-radius:50%; background:#22c55e; display:flex; align-items:center; justify-content:center; color:#fff; font-size:24px; z-index:2; box-shadow:0 0 15px rgba(34,197,94,0.4);"><i class="fas fa-phone-alt"></i></div>
+                </div>
+                
+                <!-- Dialing status and end button -->
+                <div style="width:100%; text-align:center;">
+                    <div style="font-size:13px; color:#7b8ab8; margin-bottom:30px;" id="dialStatusText">Securely connecting your call...</div>
+                    
+                    <button onclick="endMaskedCall()" style="width:70px; height:70px; border-radius:50%; background:#ef4444; border:none; color:#fff; font-size:24px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 6px 20px rgba(239,68,68,0.4); transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                    <div style="font-size:11px; color:#ef4444; font-weight:700; margin-top:8px; text-transform:uppercase; letter-spacing:0.5px;">End Call</div>
+                </div>
             </div>
         </div>
     </div>
@@ -808,6 +1103,7 @@
             if (pollInterval) clearInterval(pollInterval);
             pollInterval = setInterval(() => {
                 refreshBalance(true); // silent refresh in the background
+                loadReverseTrips(); // background sync inbound vehicles
             }, 4000); // Check every 4 seconds
         }
 
@@ -826,6 +1122,7 @@
                 const data = await res.json();
                 if (res.ok) {
                     currentUserId = userId;
+                    localStorage.setItem('monnify_userId', userId); // Persist for auto-login
                     document.getElementById('setup-screen').classList.add('hidden');
                     document.getElementById('wallet-screen').classList.remove('hidden');
                     document.getElementById('userName').textContent = name.split(' ')[0];
@@ -834,7 +1131,9 @@
                     document.getElementById('modalBankName').textContent = data.wallet.bankName;
                     updateBalance(data.wallet.balance);
                     showToast('Wallet created!');
-                    startPolling(); // Start auto-refreshing balance
+                    loadLastRides();
+                    loadReverseTrips();
+                    startPolling(); // Start auto-refreshing balance and trips
                 } else {
                     showToast(data.error || 'Failed', 'error');
                 }
@@ -906,6 +1205,319 @@
                 } else { showToast(data.error, 'error'); }
             } catch (e) { showToast(e.message, 'error'); }
         }
+
+        // --- CAMPUS TRANSIT OPERATIONS CLIENT LOGIC ---
+        let activeVehicle = null;
+        let selectedSeatId = null;
+        let activeKekePrice = 300;
+
+        function setSearchCode(code) {
+            document.getElementById('transitSearchCode').value = code;
+        }
+
+        async function searchVehicleCode() {
+            const codeInput = document.getElementById('transitSearchCode');
+            const code = codeInput.value.trim();
+            if (!code) return showToast('Please enter a vehicle code', 'error');
+            
+            try {
+                showToast('Checking Supabase...', 'success');
+                const res = await fetch(`/api/transit/vehicle/${code}`);
+                const vehicle = await res.json();
+                
+                if (!res.ok) {
+                    return showToast(vehicle.error || 'Vehicle not found', 'error');
+                }
+                
+                activeVehicle = vehicle;
+                
+                if (vehicle.type === 'Shuttle') {
+                    // Populate Shuttle Seats modal
+                    document.getElementById('seatModalDriver').textContent = vehicle.driverName;
+                    document.getElementById('seatModalRoute').textContent = vehicle.route;
+                    document.getElementById('seatModalPrice').textContent = `₦${formatMoney(vehicle.price)}`;
+                    
+                    const grid = document.getElementById('seatsCabinGrid');
+                    grid.innerHTML = '';
+                    
+                    // Render interactive seat map cabin (14 seats layout: 3 abreast rows)
+                    vehicle.seats.forEach(seat => {
+                        const sDiv = document.createElement('div');
+                        sDiv.className = `seat ${seat.booked ? 'booked' : ''}`;
+                        sDiv.textContent = seat.id;
+                        
+                        if (!seat.booked) {
+                            sDiv.onclick = () => selectShuttleSeat(seat.id, sDiv);
+                        } else {
+                            sDiv.innerHTML = '<i class="fas fa-lock" style="font-size: 10px;"></i>';
+                        }
+                        grid.appendChild(sDiv);
+                    });
+                    
+                    selectedSeatId = null;
+                    document.getElementById('bookSeatBtn').disabled = true;
+                    showModal('seatSelectorModal');
+                } else if (vehicle.type === 'Keke') {
+                    // Skips seats entirely, routes directly to Instant Driver Validation profile
+                    openDriverPaymentModal(vehicle);
+                }
+            } catch (e) {
+                showToast('Vehicle lookup failed', 'error');
+            }
+        }
+
+        function selectShuttleSeat(seatId, el) {
+            // Deselect previous
+            const seats = document.querySelectorAll('#seatsCabinGrid .seat');
+            seats.forEach(s => {
+                if (s.classList.contains('selected')) {
+                    s.classList.remove('selected');
+                }
+            });
+            
+            selectedSeatId = seatId;
+            el.classList.add('selected');
+            document.getElementById('bookSeatBtn').disabled = false;
+            showToast(`Selected seat ${seatId}`, 'success');
+        }
+
+        function confirmShuttleSeatSelection() {
+            hideModal('seatSelectorModal');
+            openDriverPaymentModal(activeVehicle);
+        }
+
+        function openDriverPaymentModal(vehicle) {
+            document.getElementById('driverPaymentName').textContent = vehicle.driverName;
+            document.getElementById('driverPaymentVehicle').textContent = vehicle.vehicleDetails;
+            document.getElementById('driverPaymentRoute').textContent = vehicle.route;
+            document.getElementById('driverVirtualAccount').textContent = vehicle.virtualAccount;
+            document.getElementById('driverBankName').textContent = vehicle.bankName;
+            
+            // Set driver avatar initials
+            const names = vehicle.driverName.split(' ');
+            const initials = names.map(n => n.charAt(0)).join('').toUpperCase();
+            document.getElementById('driverPaymentAvatar').textContent = initials;
+            
+            if (vehicle.type === 'Shuttle') {
+                document.getElementById('priceOptionsContainer').classList.add('hidden');
+                document.getElementById('seatSummaryContainer').classList.remove('hidden');
+                document.getElementById('summarySeatBadge').textContent = `Seat ${selectedSeatId}`;
+                document.getElementById('paymentModalPriceText').textContent = `₦${formatMoney(vehicle.price)}`;
+            } else if (vehicle.type === 'Keke') {
+                document.getElementById('seatSummaryContainer').classList.add('hidden');
+                document.getElementById('priceOptionsContainer').classList.remove('hidden');
+                
+                // Reset Keke price pills
+                activeKekePrice = 300;
+                document.querySelectorAll('#priceOptionsContainer .balance-tab').forEach(p => p.classList.remove('active'));
+                document.getElementById('kekePrice300').classList.add('active');
+                document.getElementById('paymentModalPriceText').textContent = '₦300.00';
+            }
+            
+            showModal('driverPaymentModal');
+        }
+
+        function selectKekePrice(price) {
+            activeKekePrice = price;
+            document.querySelectorAll('#priceOptionsContainer .balance-tab').forEach(p => p.classList.remove('active'));
+            document.getElementById(`kekePrice${price}`).classList.add('active');
+            document.getElementById('paymentModalPriceText').textContent = `₦${formatMoney(price)}.00`;
+        }
+
+        async function executeTransitPayment() {
+            if (!currentUserId) return showToast('User wallet not loaded', 'error');
+            
+            const btn = document.getElementById('payWithWalletBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner"></span> Processing Monnify Transaction...`;
+            
+            try {
+                let res, data;
+                if (activeVehicle.type === 'Shuttle') {
+                    res = await fetch('/api/transit/book-seat', {
+                        method: 'POST',
+                        headers: H,
+                        body: JSON.stringify({
+                            userId: currentUserId,
+                            code: activeVehicle.code,
+                            seatId: selectedSeatId
+                        })
+                    });
+                    data = await res.json();
+                } else if (activeVehicle.type === 'Keke') {
+                    res = await fetch('/api/transit/keke-pay', {
+                        method: 'POST',
+                        headers: H,
+                        body: JSON.stringify({
+                            userId: currentUserId,
+                            code: activeVehicle.code,
+                            price: activeKekePrice
+                        })
+                    });
+                    data = await res.json();
+                }
+                
+                if (res.ok) {
+                    updateBalance(data.remainingBalance);
+                    
+                    const pricePaid = activeVehicle.type === 'Shuttle' ? activeVehicle.price : activeKekePrice;
+                    addTxn(`${activeVehicle.type} Ride (${activeVehicle.code})`, pricePaid, 'debit');
+                    
+                    showToast('Payment successful!', 'success');
+                    hideModal('driverPaymentModal');
+                    
+                    if (data.reverseTripGenerated) {
+                        showToast('🔄 Automated reverse trip posted to Annex Campus!', 'success');
+                    }
+                    
+                    // Clear search input
+                    document.getElementById('transitSearchCode').value = '';
+                    
+                    // Reload transit states
+                    loadLastRides();
+                    loadReverseTrips();
+                } else {
+                    showToast(data.error || 'Payment failed', 'error');
+                }
+            } catch (e) {
+                showToast('Monnify wallet error', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        async function loadLastRides() {
+            if (!currentUserId) return;
+            try {
+                const res = await fetch(`/api/transit/last-rides/${currentUserId}`);
+                const rides = await res.json();
+                const list = document.getElementById('lastRidesList');
+                
+                if (!rides || !rides.length) {
+                    list.innerHTML = `
+                        <div class="empty-state" style="padding: 24px; font-size: 12px; border: 1px dashed rgba(255,255,255,0.05); border-radius:16px;">
+                            <i class="fas fa-car" style="font-size: 24px; margin-bottom: 8px; display:block; color:#4b5563;"></i>
+                            No campus rides logged yet
+                        </div>`;
+                    return;
+                }
+                
+                list.innerHTML = rides.map(ride => `
+                    <div class="ride-card" onclick="openMaskedCallOption('${ride.driverName}', '${ride.vehicleDetails}', '${ride.proxyPhone || ride.phone}')">
+                        <div>
+                            <div style="font-size: 13px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                                ${ride.driverName}
+                                <span class="ride-badge ${ride.type.toLowerCase()}">${ride.type}</span>
+                            </div>
+                            <div style="font-size: 11px; color:#7b8ab8; margin-top:4px;">${ride.vehicleDetails}</div>
+                            <div style="font-size: 10px; color:#506191; margin-top:2px;">${ride.route}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 13px; font-weight:800; color:#fff;">₦${formatMoney(ride.price)}</div>
+                            <div style="font-size: 10px; color:#22c55e; font-weight:700; margin-top:4px;"><i class="fas fa-shield-alt"></i> Masked Call</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to sync history stack', e);
+            }
+        }
+
+        async function loadReverseTrips() {
+            try {
+                const res = await fetch('/api/transit/reverse-trips');
+                const trips = await res.json();
+                const container = document.getElementById('inboundSection');
+                const list = document.getElementById('inboundList');
+                
+                if (!trips || !trips.length) {
+                    container.classList.add('hidden');
+                    return;
+                }
+                
+                container.classList.remove('hidden');
+                list.innerHTML = trips.map(trip => `
+                    <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); padding: 14px; border-radius: 16px; display: flex; align-items: center; gap: 12px; animation: slideUp 0.3s ease;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; color: #ef4444; font-size: 16px;"><i class="fas fa-shipping-fast"></i></div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 12px; font-weight: 700; color:#fff; display:flex; align-items:center; gap:6px;">
+                                ${trip.route}
+                                <span style="background:#ef4444; color:#fff; font-size:8px; padding:1px 6px; border-radius:4px; font-weight:800; text-transform:uppercase;">Inbound</span>
+                            </div>
+                            <div style="font-size: 11px; color: #7b8ab8; margin-top:2px;">${trip.message}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to sync inbound status', e);
+            }
+        }
+
+        function openMaskedCallOption(driverName, vehicleDetails, proxyNum) {
+            document.getElementById('callerDriverName').textContent = driverName;
+            document.getElementById('callerDriverVehicle').textContent = vehicleDetails;
+            document.getElementById('callerProxyPhone').textContent = proxyNum;
+            
+            const initials = driverName.split(' ').map(n => n.charAt(0)).join('').toUpperCase();
+            document.getElementById('callerDriverAvatar').textContent = initials;
+            
+            document.getElementById('dialStatusText').innerHTML = `Dialing secure proxy via Monnify numbers...`;
+            showModal('maskedCallModal');
+            
+            // Masked session simulator routing connection
+            setTimeout(() => {
+                const status = document.getElementById('dialStatusText');
+                if (status && document.getElementById('maskedCallModal').classList.contains('show')) {
+                    status.innerHTML = `<span style="color:#22c55e; font-weight:700;"><i class="fas fa-shield-alt"></i> Secure Routing Established</span><br><span style="font-size:11px; color:#7b8ab8;">Real phone numbers are fully masked.</span>`;
+                }
+            }, 3000);
+        }
+
+        function endMaskedCall() {
+            hideModal('maskedCallModal');
+            showToast('Secure session closed safely.', 'success');
+        }
+
+        function copyToClipboard(txt) {
+            navigator.clipboard.writeText(txt).then(() => {
+                showToast('Virtual account copied!', 'success');
+            }).catch(() => {
+                showToast('Failed to copy', 'error');
+            });
+        }
+
+        async function checkExistingWallet() {
+            const savedUserId = localStorage.getItem('monnify_userId');
+            if (!savedUserId) return;
+            try {
+                const res = await fetch(`/api/wallet/info/${savedUserId}`);
+                const data = await res.json();
+                if (res.ok && data.wallet) {
+                    currentUserId = savedUserId;
+                    const wallet = data.wallet;
+                    document.getElementById('setup-screen').classList.add('hidden');
+                    document.getElementById('wallet-screen').classList.remove('hidden');
+                    document.getElementById('userName').textContent = wallet.name.split(' ')[0];
+                    document.getElementById('avatarInitial').textContent = wallet.name.charAt(0).toUpperCase();
+                    document.getElementById('modalAccNum').textContent = wallet.accountNumber;
+                    document.getElementById('modalBankName').textContent = wallet.bankName;
+                    updateBalance(wallet.balance);
+                    showToast(`Welcome back, ${wallet.name.split(' ')[0]}!`);
+                    loadLastRides();
+                    loadReverseTrips();
+                    startPolling();
+                } else {
+                    localStorage.removeItem('monnify_userId');
+                }
+            } catch (e) {
+                console.error('Error auto-logging in:', e);
+            }
+        }
+
+        // Trigger auto-login on load
+        window.addEventListener('load', checkExistingWallet);
     </script>
 </body>
 
